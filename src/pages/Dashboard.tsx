@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { FoodScanner } from '@/components/FoodScanner';
-import { VoiceCoach } from '@/components/VoiceCoach';
+import { Coach } from '@/components/Coach';
 import { 
   Activity, 
   Target, 
@@ -28,7 +28,7 @@ type BottomNavTab = 'home' | 'stats' | 'chat' | 'profile';
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<BottomNavTab>('home');
   const [showFoodScanner, setShowFoodScanner] = useState(false);
-  const [showVoiceCoach, setShowVoiceCoach] = useState(false);
+  const [showCoach, setShowCoach] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
   const { user, logout } = useAuth();
 
@@ -57,7 +57,7 @@ export const Dashboard = () => {
           <HomeTab 
             dailyGoals={dailyGoals} 
             recentActivities={recentActivities}
-            onStartWorkout={() => setShowVoiceCoach(true)}
+            onStartWorkout={() => setShowCoach(true)}
             onLogFood={() => setShowFoodScanner(true)}
           />
         );
@@ -72,7 +72,7 @@ export const Dashboard = () => {
           <HomeTab 
             dailyGoals={dailyGoals} 
             recentActivities={recentActivities}
-            onStartWorkout={() => setShowVoiceCoach(true)}
+            onStartWorkout={() => setShowCoach(true)}
             onLogFood={() => setShowFoodScanner(true)}
           />
         );
@@ -164,9 +164,9 @@ export const Dashboard = () => {
         />
       )}
       
-      {showVoiceCoach && (
-        <VoiceCoach
-          onClose={() => setShowVoiceCoach(false)}
+      {showCoach && (
+        <Coach
+          onClose={() => setShowCoach(false)}
           workoutType={user?.exerciseType || 'running'}
         />
       )}
@@ -195,7 +195,7 @@ export const Dashboard = () => {
                 className="w-full h-16 text-lg font-semibold rounded-2xl"
                 onClick={() => {
                   setShowQuickActions(false);
-                  setShowVoiceCoach(true);
+                  setShowCoach(true);
                 }}
               >
                 <Activity className="w-6 h-6 mr-3" />
