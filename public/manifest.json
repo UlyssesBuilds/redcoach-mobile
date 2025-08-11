@@ -1,0 +1,20 @@
+{
+  "name": "RedCoach - AI Fitness Companion",
+  "short_name": "RedCoach",
+  "description": "Your AI-powered fitness companion for personalized workouts, nutrition tracking, and goal achievement",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#dc2626",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["fitness", "health", "lifestyle"],
+  "lang": "en",
+  "scope": "/"
+}

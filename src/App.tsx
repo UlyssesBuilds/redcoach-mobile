@@ -2,25 +2,43 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { AuthScreen } from "@/pages/AuthScreen";
+import { OnboardingScreen } from "@/pages/OnboardingScreen";
+import { Dashboard } from "@/pages/Dashboard";
+import { LoadingScreen } from "@/components/LoadingScreen";
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  if (!user.onboardingCompleted) {
+    return <OnboardingScreen />;
+  }
+
+  return <Dashboard />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <div className="dark">
+          <Toaster />
+          <Sonner />
+          <AppContent />
+        </div>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

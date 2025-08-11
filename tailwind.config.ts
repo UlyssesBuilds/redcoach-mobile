@@ -61,7 +61,31 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// RedCoach Custom Colors
+				coach: {
+					red: 'hsl(var(--coach-red))',
+					'red-glow': 'hsl(var(--coach-red-glow))',
+					'red-dark': 'hsl(var(--coach-red-dark))',
+					card: 'hsl(var(--coach-card))',
+					'card-hover': 'hsl(var(--coach-card-hover))',
+					input: 'hsl(var(--coach-input))',
+					border: 'hsl(var(--coach-border))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-card': 'var(--gradient-card)',
+				'gradient-subtle': 'var(--gradient-subtle)'
+			},
+			boxShadow: {
+				'glow': 'var(--shadow-glow)',
+				'card': 'var(--shadow-card)',
+				'elegant': 'var(--shadow-elegant)'
+			},
+			transitionTimingFunction: {
+				'smooth': 'var(--transition-smooth)',
+				'bounce': 'var(--transition-bounce)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
