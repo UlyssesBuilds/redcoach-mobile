@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, X, Loader2 } from 'lucide-react';
@@ -11,9 +11,14 @@ interface FoodScannerProps {
 }
 
 export const FoodScanner = ({ onClose, onFoodLogged }: FoodScannerProps) => {
-  const [isScanning, setIsScanning] = useState(false);
+  const [isScanning, setIsScanning] = useState(true);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Automatically start camera when component mounts
+  useEffect(() => {
+    takePhoto();
+  }, []);
 
   const takePhoto = async () => {
     try {
@@ -55,6 +60,7 @@ export const FoodScanner = ({ onClose, onFoodLogged }: FoodScannerProps) => {
         title: "Camera error",
         description: "Unable to access camera. Please try again.",
       });
+      onClose(); // Close modal on camera error
     } finally {
       setIsScanning(false);
     }
@@ -71,38 +77,23 @@ export const FoodScanner = ({ onClose, onFoodLogged }: FoodScannerProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           {!capturedImage ? (
-            <>
-              <div className="text-center space-y-4">
-                <div className="w-20 h-20 bg-coach-red/10 rounded-full flex items-center justify-center mx-auto">
-                  <Camera className="w-10 h-10 text-coach-red" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">Scan your food</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Take a photo and our AI will identify the food and calories
-                  </p>
-                </div>
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 bg-coach-red/10 rounded-full flex items-center justify-center mx-auto">
+                <Camera className="w-10 h-10 text-coach-red" />
               </div>
-              
-              <Button 
-                variant="coach" 
-                className="w-full"
-                onClick={takePhoto}
-                disabled={isScanning}
-              >
-                {isScanning ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Opening camera...
-                  </>
-                ) : (
-                  <>
-                    <Camera className="w-4 h-4 mr-2" />
-                    Take Photo
-                  </>
-                )}
-              </Button>
-            </>
+              <div>
+                <h3 className="font-semibold">Opening Camera...</h3>
+                <p className="text-sm text-muted-foreground">
+                  {isScanning ? 'Accessing camera to scan your food' : 'Camera ready to scan'}
+                </p>
+              </div>
+              {isScanning && (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-coach-red" />
+                  <span className="text-sm">Opening camera...</span>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="text-center space-y-4">
               <img 
