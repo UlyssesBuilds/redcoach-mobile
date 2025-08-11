@@ -29,6 +29,7 @@ export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<BottomNavTab>('home');
   const [showFoodScanner, setShowFoodScanner] = useState(false);
   const [showVoiceCoach, setShowVoiceCoach] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
   const { user, logout } = useAuth();
 
   // Mock data
@@ -102,24 +103,56 @@ export const Dashboard = () => {
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-card border-t border-coach-border">
-        <div className="flex justify-around py-2">
-          {[
-            { key: 'home', icon: Home, label: 'Home' },
-            { key: 'stats', icon: BarChart3, label: 'Stats' },
-            { key: 'chat', icon: MessageCircle, label: 'Coach' },
-            { key: 'profile', icon: User, label: 'Profile' }
-          ].map(({ key, icon: Icon, label }) => (
-            <Button
-              key={key}
-              variant={activeTab === key ? 'coach' : 'ghost'}
-              size="sm"
-              className="flex-col h-14 px-3"
-              onClick={() => setActiveTab(key as BottomNavTab)}
-            >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs mt-1">{label}</span>
-            </Button>
-          ))}
+        <div className="flex items-center justify-around py-2 relative">
+          <Button
+            variant={activeTab === 'home' ? 'coach' : 'ghost'}
+            size="sm"
+            className="flex-col h-14 px-3"
+            onClick={() => setActiveTab('home')}
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-xs mt-1">Home</span>
+          </Button>
+          
+          <Button
+            variant={activeTab === 'stats' ? 'coach' : 'ghost'}
+            size="sm"
+            className="flex-col h-14 px-3"
+            onClick={() => setActiveTab('stats')}
+          >
+            <BarChart3 className="w-5 h-5" />
+            <span className="text-xs mt-1">Stats</span>
+          </Button>
+          
+          {/* Plus Button */}
+          <Button
+            variant="coach"
+            size="icon"
+            className="w-14 h-14 rounded-full bg-gradient-primary shadow-glow -mt-6"
+            onClick={() => setShowQuickActions(true)}
+          >
+            <Plus className="w-6 h-6 text-white" />
+          </Button>
+          
+          <Button
+            variant={activeTab === 'chat' ? 'coach' : 'ghost'}
+            size="sm"
+            className="flex-col h-14 px-3"
+            onClick={() => setActiveTab('chat')}
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="text-xs mt-1">Coach</span>
+          </Button>
+          
+          <Button
+            variant={activeTab === 'profile' ? 'coach' : 'ghost'}
+            size="sm"
+            className="flex-col h-14 px-3"
+            onClick={() => setActiveTab('profile')}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-xs mt-1">Profile</span>
+          </Button>
         </div>
       </div>
 
@@ -136,6 +169,49 @@ export const Dashboard = () => {
           onClose={() => setShowVoiceCoach(false)}
           workoutType={user?.exerciseType || 'running'}
         />
+      )}
+      
+      {/* Quick Actions Modal */}
+      {showQuickActions && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center">
+          <div className="bg-gradient-card border-t border-coach-border rounded-t-3xl w-full max-w-md mx-4 mb-0 p-6 space-y-4">
+            <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+            
+            <div className="space-y-3">
+              <Button
+                variant="coach"
+                className="w-full h-16 text-lg font-semibold rounded-2xl"
+                onClick={() => {
+                  setShowQuickActions(false);
+                  setShowFoodScanner(true);
+                }}
+              >
+                <Apple className="w-6 h-6 mr-3" />
+                Food
+              </Button>
+              
+              <Button
+                variant="coach-outline"
+                className="w-full h-16 text-lg font-semibold rounded-2xl"
+                onClick={() => {
+                  setShowQuickActions(false);
+                  setShowVoiceCoach(true);
+                }}
+              >
+                <Activity className="w-6 h-6 mr-3" />
+                Running
+              </Button>
+            </div>
+            
+            <Button
+              variant="ghost"
+              className="w-full mt-4 text-muted-foreground"
+              onClick={() => setShowQuickActions(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
