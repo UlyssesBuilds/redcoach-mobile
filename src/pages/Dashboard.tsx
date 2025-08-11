@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { FoodScanner } from '@/components/FoodScanner';
 import { VoiceCoach } from '@/components/VoiceCoach';
-import { CoachScreen } from '@/components/CoachScreen';
 import { 
   Activity, 
   Target, 
@@ -24,7 +23,7 @@ import {
   Plus
 } from 'lucide-react';
 
-type BottomNavTab = 'home' | 'stats' | 'coach' | 'profile';
+type BottomNavTab = 'home' | 'stats' | 'chat' | 'profile';
 
 export const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<BottomNavTab>('home');
@@ -64,8 +63,8 @@ export const Dashboard = () => {
         );
       case 'stats':
         return <StatsTab />;
-      case 'coach':
-        return <CoachScreen isFullScreen={true} />;
+      case 'chat':
+        return <ChatTab />;
       case 'profile':
         return <ProfileTab user={user} onLogout={logout} />;
       default:
@@ -136,10 +135,10 @@ export const Dashboard = () => {
           </Button>
           
           <Button
-            variant={activeTab === 'coach' ? 'coach' : 'ghost'}
+            variant={activeTab === 'chat' ? 'coach' : 'ghost'}
             size="sm"
             className="flex-col h-14 px-3"
-            onClick={() => setActiveTab('coach')}
+            onClick={() => setActiveTab('chat')}
           >
             <MessageCircle className="w-5 h-5" />
             <span className="text-xs mt-1">Coach</span>
@@ -329,7 +328,23 @@ const StatsTab = () => (
   </div>
 );
 
-// ChatTab removed - replaced by CoachScreen
+const ChatTab = () => (
+  <div className="p-4 space-y-6">
+    <h2 className="text-xl font-semibold">AI Coach</h2>
+    <Card className="bg-gradient-card border-coach-border">
+      <CardHeader>
+        <CardTitle>Chat with your AI Coach</CardTitle>
+        <CardDescription>Get personalized advice and motivation</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button variant="coach" className="w-full">
+          <MessageCircle className="w-4 h-4 mr-2" />
+          Start Conversation
+        </Button>
+      </CardContent>
+    </Card>
+  </div>
+);
 
 const ProfileTab = ({ user, onLogout }: any) => (
   <div className="p-4 space-y-6">
