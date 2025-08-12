@@ -9,6 +9,7 @@ import { Coach } from '@/components/Coach';
 import { FeedFilterPanel } from '@/components/FeedFilterPanel';
 import { FeedItem } from '@/components/FeedItem';
 import { fetchFeed, FeedFilterType, FeedItem as FeedItemType } from '@/lib/feedService';
+import { StatsPage } from '@/components/StatsPage';
 import { 
   Activity, 
   Target, 
@@ -431,7 +432,6 @@ const StatsTab = () => {
   const [showStats, setShowStats] = useState(false);
   
   if (showStats) {
-    const { StatsPage } = require('@/components/StatsPage');
     return <StatsPage onBack={() => setShowStats(false)} />;
   }
   
