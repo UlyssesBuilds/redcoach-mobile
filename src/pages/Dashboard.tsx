@@ -367,25 +367,30 @@ const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood, acti
 
     {/* Quick Actions */}
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Quick Actions</h2>
-      <div className="grid grid-cols-2 gap-4">
-        <Button 
-          variant="coach-outline" 
-          className="h-20 flex-col"
-          onClick={onStartWorkout}
-        >
-          <Activity className="w-6 h-6 mb-2" />
-          Start Workout
-        </Button>
-        <Button 
-          variant="coach-outline" 
-          className="h-20 flex-col"
-          onClick={onLogFood}
-        >
-          <Camera className="w-6 h-6 mb-2" />
-          Log Food
-        </Button>
-      </div>
+      {/* Quick Actions - temporarily hidden */}
+      {false && (
+        <>
+          <h2 className="text-xl font-semibold">Quick Actions</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <Button 
+              variant="coach-outline" 
+              className="h-20 flex-col"
+              onClick={onStartWorkout}
+            >
+              <Activity className="w-6 h-6 mb-2" />
+              Start Workout
+            </Button>
+            <Button 
+              variant="coach-outline" 
+              className="h-20 flex-col"
+              onClick={onLogFood}
+            >
+              <Camera className="w-6 h-6 mb-2" />
+              Log Food
+            </Button>
+          </div>
+        </>
+      )}
     </div>
 
     {/* Community Feed */}
