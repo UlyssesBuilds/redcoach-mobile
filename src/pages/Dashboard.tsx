@@ -10,6 +10,7 @@ import { FeedFilterPanel } from '@/components/FeedFilterPanel';
 import { FeedItem } from '@/components/FeedItem';
 import { fetchFeed, FeedFilterType, FeedItem as FeedItemType } from '@/lib/feedService';
 import { StatsPage } from '@/components/StatsPage';
+import { AIChatScreen } from '@/components/AIChatScreen';
 import { 
   Activity, 
   Target, 
@@ -432,23 +433,9 @@ const StatsTab = () => {
   return <StatsPage />;
 };
 
-const ChatTab = () => (
-  <div className="p-4 space-y-6">
-    <h2 className="text-xl font-semibold">AI Coach</h2>
-    <Card className="bg-gradient-card border-coach-border">
-      <CardHeader>
-        <CardTitle>Chat with your AI Coach</CardTitle>
-        <CardDescription>Get personalized advice and motivation</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button variant="coach" className="w-full">
-          <MessageCircle className="w-4 h-4 mr-2" />
-          Start Conversation
-        </Button>
-      </CardContent>
-    </Card>
-  </div>
-);
+const ChatTab = () => {
+  return <AIChatScreen />;
+};
 
 const ProfileTab = ({ user, onLogout }: any) => (
   <div className="p-4 space-y-6">
