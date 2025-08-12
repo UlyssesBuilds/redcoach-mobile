@@ -10,9 +10,9 @@ type TimeRange = 'weekly' | 'monthly' | 'yearly';
 
 interface ActivityRing {
   day: string;
-  completed: number;
-  total: number;
-  percentage: number;
+  eating: number; // 0-100 percentage for healthy eating
+  exercise: number; // 0-100 percentage for exercise goals
+  target: number; // 0-100 percentage for daily target goals
 }
 
 interface ActivityTrendData {
@@ -48,13 +48,13 @@ const fetchStatsData = async (timeRange: TimeRange): Promise<StatsData> => {
   const mockData: Record<TimeRange, StatsData> = {
     weekly: {
       activityRings: [
-        { day: 'M', completed: 85, total: 100, percentage: 85 },
-        { day: 'T', completed: 92, total: 100, percentage: 92 },
-        { day: 'W', completed: 45, total: 100, percentage: 45 },
-        { day: 'T', completed: 88, total: 100, percentage: 88 },
-        { day: 'F', completed: 95, total: 100, percentage: 95 },
-        { day: 'S', completed: 78, total: 100, percentage: 78 },
-        { day: 'S', completed: 100, total: 100, percentage: 100 },
+        { day: 'M', eating: 85, exercise: 92, target: 78 },
+        { day: 'T', eating: 92, exercise: 88, target: 95 },
+        { day: 'W', eating: 45, exercise: 65, target: 82 },
+        { day: 'T', eating: 88, exercise: 95, target: 90 },
+        { day: 'F', eating: 95, exercise: 82, target: 88 },
+        { day: 'S', eating: 78, exercise: 90, target: 85 },
+        { day: 'S', eating: 100, exercise: 85, target: 100 },
       ],
       activityTrend: [
         { day: 'Mon', value: 65 },
@@ -82,10 +82,10 @@ const fetchStatsData = async (timeRange: TimeRange): Promise<StatsData> => {
     },
     monthly: {
       activityRings: [
-        { day: 'W1', completed: 78, total: 100, percentage: 78 },
-        { day: 'W2', completed: 85, total: 100, percentage: 85 },
-        { day: 'W3', completed: 72, total: 100, percentage: 72 },
-        { day: 'W4', completed: 90, total: 100, percentage: 90 },
+        { day: 'W1', eating: 78, exercise: 85, target: 82 },
+        { day: 'W2', eating: 85, exercise: 90, target: 88 },
+        { day: 'W3', eating: 72, exercise: 80, target: 75 },
+        { day: 'W4', eating: 90, exercise: 95, target: 92 },
       ],
       activityTrend: [
         { day: 'Week 1', value: 78 },
@@ -107,10 +107,10 @@ const fetchStatsData = async (timeRange: TimeRange): Promise<StatsData> => {
     },
     yearly: {
       activityRings: [
-        { day: 'Q1', completed: 82, total: 100, percentage: 82 },
-        { day: 'Q2', completed: 88, total: 100, percentage: 88 },
-        { day: 'Q3', completed: 75, total: 100, percentage: 75 },
-        { day: 'Q4', completed: 92, total: 100, percentage: 92 },
+        { day: 'Q1', eating: 82, exercise: 88, target: 85 },
+        { day: 'Q2', eating: 88, exercise: 92, target: 90 },
+        { day: 'Q3', eating: 75, exercise: 80, target: 78 },
+        { day: 'Q4', eating: 92, exercise: 95, target: 94 },
       ],
       activityTrend: [
         { day: 'Q1', value: 82 },
@@ -404,42 +404,59 @@ export const StatsPage = ({ onBack }: StatsPageProps) => {
   );
 };
 
-// Activity Ring Component
+// Activity Ring Component - Apple Health Style
 const ActivityRingComponent = ({ ring }: { ring: ActivityRing }) => {
-  const radius = 24;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDasharray = circumference;
-  const strokeDashoffset = circumference - (ring.percentage / 100) * circumference;
+  const radius1 = 20; // Outer ring (target)
+  const radius2 = 16; // Middle ring (exercise)
+  const radius3 = 12; // Inner ring (eating)
+  
+  const circumference1 = 2 * Math.PI * radius1;
+  const circumference2 = 2 * Math.PI * radius2;
+  const circumference3 = 2 * Math.PI * radius3;
+
+  const targetOffset = circumference1 - (ring.target / 100) * circumference1;
+  const exerciseOffset = circumference2 - (ring.exercise / 100) * circumference2;
+  const eatingOffset = circumference3 - (ring.eating / 100) * circumference3;
 
   return (
     <div className="flex flex-col items-center space-y-2">
       <div className="relative w-16 h-16">
         <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 56 56">
-          {/* Background circle */}
+          {/* Background circles */}
+          <circle cx="28" cy="28" r={radius1} stroke="currentColor" strokeWidth="3" fill="none" className="text-muted/20" />
+          <circle cx="28" cy="28" r={radius2} stroke="currentColor" strokeWidth="3" fill="none" className="text-muted/20" />
+          <circle cx="28" cy="28" r={radius3} stroke="currentColor" strokeWidth="3" fill="none" className="text-muted/20" />
+          
+          {/* Outer ring - Target Goals (Red) */}
           <circle
-            cx="28"
-            cy="28"
-            r={radius}
-            stroke="currentColor"
-            strokeWidth="4"
-            fill="none"
-            className="text-muted/20"
-          />
-          {/* Progress circle */}
-          <circle
-            cx="28"
-            cy="28"
-            r={radius}
+            cx="28" cy="28" r={radius1}
             stroke="hsl(var(--coach-red))"
-            strokeWidth="4"
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray={strokeDasharray}
-            strokeDashoffset={strokeDashoffset}
+            strokeWidth="3" fill="none" strokeLinecap="round"
+            strokeDasharray={circumference1}
+            strokeDashoffset={targetOffset}
             className="transition-all duration-1000 ease-out"
-            style={{
-              animation: `ring-fill 1s ease-out forwards`,
-            }}
+          />
+          
+          {/* Middle ring - Exercise (Green) */}
+          <circle
+            cx="28" cy="28" r={radius2}
+            stroke="hsl(142, 76%, 36%)"
+            strokeWidth="3" fill="none" strokeLinecap="round"
+            strokeDasharray={circumference2}
+            strokeDashoffset={exerciseOffset}
+            className="transition-all duration-1000 ease-out"
+            style={{ animationDelay: '0.2s' }}
+          />
+          
+          {/* Inner ring - Healthy Eating (Orange/Yellow) */}
+          <circle
+            cx="28" cy="28" r={radius3}
+            stroke="hsl(45, 93%, 58%)"
+            strokeWidth="3" fill="none" strokeLinecap="round"
+            strokeDasharray={circumference3}
+            strokeDashoffset={eatingOffset}
+            className="transition-all duration-1000 ease-out"
+            style={{ animationDelay: '0.4s' }}
           />
         </svg>
       </div>
