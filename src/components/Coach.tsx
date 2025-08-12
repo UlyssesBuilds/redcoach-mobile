@@ -11,8 +11,8 @@ interface CoachProps {
 type CoachState = 'greeting' | 'listening' | 'speaking' | 'paused' | 'stopped';
 
 export const Coach = ({ onClose, workoutType }: CoachProps) => {
-  const [state, setState] = useState<CoachState>('greeting');
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [state, setState] = useState<CoachState>('listening');
+  const [isPlaying, setIsPlaying] = useState(true);
   const [currentMessage, setCurrentMessage] = useState("What is today's goal?");
   const { toast } = useToast();
 
@@ -58,25 +58,16 @@ export const Coach = ({ onClose, workoutType }: CoachProps) => {
   };
 
   const handlePlayPause = () => {
-    if (state === 'paused') {
-      setState('speaking');
-      setCurrentMessage("Let's continue your workout!");
-      setIsPlaying(true);
-      simulateVoiceOutput();
-    } else if (isPlaying) {
+    if (isPlaying) {
+      // Pause listening
       setState('paused');
       setIsPlaying(false);
-      setCurrentMessage(messages.paused);
+      setCurrentMessage("Session paused. Tap to continue listening.");
     } else {
-      if (state === 'listening') {
-        // Simulate user input and AI response
-        setState('speaking');
-        setCurrentMessage("Perfect! Let's begin your strength training session.");
-        simulateVoiceOutput();
-      } else {
-        setIsPlaying(true);
-        simulateVoiceOutput();
-      }
+      // Resume listening
+      setState('listening');
+      setIsPlaying(true);
+      setCurrentMessage("What is today's goal?");
     }
   };
 
