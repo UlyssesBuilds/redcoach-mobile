@@ -259,36 +259,39 @@ export const StatsPage = ({ onBack }: StatsPageProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                value: {
-                  label: "Activity",
-                  color: "hsl(var(--coach-red))",
-                },
-              }}
-              className="h-[200px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={statsData.activityTrend}>
-                  <XAxis 
-                    dataKey="day" 
-                    axisLine={false}
-                    tickLine={false}
-                    className="text-muted-foreground"
-                  />
-                  <YAxis hide />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="hsl(var(--coach-red))"
-                    strokeWidth={3}
-                    dot={{ fill: "hsl(var(--coach-red))", strokeWidth: 2, r: 6 }}
-                    activeDot={{ r: 8, stroke: "hsl(var(--coach-red))", strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            <div className="h-[250px] w-full">
+              <ChartContainer
+                config={{
+                  value: {
+                    label: "Activity",
+                    color: "hsl(var(--coach-red))",
+                  },
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={statsData.activityTrend} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+                    <XAxis 
+                      dataKey="day" 
+                      axisLine={false}
+                      tickLine={false}
+                      className="text-muted-foreground"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis hide />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="hsl(var(--coach-red))"
+                      strokeWidth={3}
+                      dot={{ fill: "hsl(var(--coach-red))", strokeWidth: 2, r: 6 }}
+                      activeDot={{ r: 8, stroke: "hsl(var(--coach-red))", strokeWidth: 2 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
           </CardContent>
         </Card>
 
