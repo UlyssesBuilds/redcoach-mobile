@@ -7,18 +7,87 @@ import { ChatMessage } from '@/components/ChatMessage';
 import { ChatService, ChatMessage as ChatMessageType, QuickQuestion } from '@/lib/chatService';
 import { Send, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Keyboard } from '@capacitor/keyboard';
 
 export const AIChatScreen = () => {
   const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const chatService = ChatService.getInstance();
   const quickQuestions = chatService.getQuickQuestions();
 
-  // Welcome message
+  // Handle keyboard show/hide events for mobile with Capacitor
+  useEffect(() => {
+    let keyboardShowListener: any;
+    let keyboardHideListener: any;
+
+    const setupKeyboardListeners = async () => {
+      try {
+        // Capacitor Keyboard plugin listeners
+        keyboardShowListener = await Keyboard.addListener('keyboardWillShow', (info) => {
+          setKeyboardHeight(info.keyboardHeight);
+          // Scroll input into view after keyboard animation
+          setTimeout(() => {
+            if (inputRef.current) {
+              inputRef.current.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'end' 
+              });
+            }
+          }, 150);
+        });
+
+        keyboardHideListener = await Keyboard.addListener('keyboardWillHide', () => {
+          setKeyboardHeight(0);
+        });
+      } catch (error) {
+        console.log('Capacitor Keyboard not available, using fallback');
+        // Fallback for web browsers
+        const handleResize = () => {
+          if (window.visualViewport) {
+            const heightDiff = window.innerHeight - window.visualViewport.height;
+            if (heightDiff > 150) { // Keyboard is likely shown
+              setKeyboardHeight(heightDiff);
+              setTimeout(() => {
+                if (inputRef.current) {
+                  inputRef.current.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end' 
+                  });
+                }
+              }, 100);
+            } else {
+              setKeyboardHeight(0);
+            }
+          }
+        };
+
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', handleResize);
+          return () => {
+            window.visualViewport?.removeEventListener('resize', handleResize);
+          };
+        }
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+          window.removeEventListener('resize', handleResize);
+        };
+      }
+    };
+
+    setupKeyboardListeners();
+
+    return () => {
+      if (keyboardShowListener) keyboardShowListener.remove();
+      if (keyboardHideListener) keyboardHideListener.remove();
+    };
+  }, []);
   useEffect(() => {
     const welcomeMessage = chatService.formatMessage(
       `👋 Hey there! I'm your RedCoach AI assistant, ready to help you crush your fitness goals!
@@ -92,8 +161,27 @@ What would you like to know about today?`,
     }
   };
 
+  const handleInputFocus = () => {
+    // Ensure input stays visible when focused
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end' 
+        });
+      }
+    }, 300); // Delay to allow keyboard animation
+  };
+
   return (
-    <div className="flex flex-col h-full bg-gradient-subtle">
+    <div 
+      ref={containerRef}
+      className="flex flex-col h-full bg-gradient-subtle relative"
+      style={{ 
+        height: keyboardHeight > 0 ? `calc(100vh - ${keyboardHeight}px)` : '100vh',
+        maxHeight: keyboardHeight > 0 ? `calc(100vh - ${keyboardHeight}px)` : '100vh'
+      }}
+    >
       {/* Header */}
       <div className="bg-gradient-card border-b border-coach-border p-4">
         <div className="flex items-center space-x-3">
@@ -128,7 +216,11 @@ What would you like to know about today?`,
       )}
 
       {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 pb-2"
+        style={{ 
+          maxHeight: keyboardHeight > 0 ? 'calc(100% - 140px)' : 'calc(100% - 80px)'
+        }}
+      >
         <div className="space-y-4">
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
@@ -137,22 +229,31 @@ What would you like to know about today?`,
       </ScrollArea>
 
       {/* Input */}
-      <div className="p-4 bg-gradient-card border-t border-coach-border">
+      <div className="p-4 bg-gradient-card border-t border-coach-border sticky bottom-0 z-10"
+        style={{ 
+          transform: keyboardHeight > 0 ? 'translateY(0)' : 'none'
+        }}
+      >
         <div className="flex items-center space-x-3">
           <Input
             ref={inputRef}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
+            onFocus={handleInputFocus}
             placeholder="Ask me anything about fitness..."
-            className="flex-1 bg-coach-input border-coach-border focus:border-coach-red"
+            className="flex-1 bg-coach-input border-coach-border focus:border-coach-red focus:ring-coach-red transition-colors"
             disabled={isLoading}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="sentences"
+            enterKeyHint="send"
           />
           <Button
             onClick={() => handleSendMessage()}
             disabled={!inputValue.trim() || isLoading}
             size="icon"
-            className="bg-gradient-primary hover:bg-coach-red-dark disabled:opacity-50"
+            className="bg-gradient-primary hover:bg-coach-red-dark disabled:opacity-50 flex-shrink-0"
           >
             <Send className="w-4 h-4 text-white" />
           </Button>
