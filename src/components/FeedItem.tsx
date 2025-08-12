@@ -22,16 +22,7 @@ const getTypeIcon = (type: string) => {
 };
 
 const getTypeColor = (type: string) => {
-  switch (type) {
-    case 'event':
-      return 'bg-yellow-500/10 border-yellow-500/20';
-    case 'food':
-      return 'bg-green-500/10 border-green-500/20';
-    case 'activity':
-      return 'bg-blue-500/10 border-blue-500/20';
-    default:
-      return 'bg-coach-red/10 border-coach-red/20';
-  }
+  return 'bg-muted/50 border-border';
 };
 
 export const FeedItem = ({ item }: FeedItemProps) => {
