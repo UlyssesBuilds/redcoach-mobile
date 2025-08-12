@@ -178,10 +178,9 @@ What would you like to know about today?`,
   return (
     <div 
       ref={containerRef}
-      className="flex flex-col h-full bg-gradient-subtle relative"
+      className="flex flex-col h-screen bg-gradient-subtle overflow-hidden"
       style={{ 
-        height: keyboardHeight > 0 ? `calc(100vh - ${keyboardHeight}px)` : '100vh',
-        maxHeight: keyboardHeight > 0 ? `calc(100vh - ${keyboardHeight}px)` : '100vh'
+        height: keyboardHeight > 0 ? `calc(100vh - ${keyboardHeight}px)` : '100vh'
       }}
     >
       {/* Header */}
@@ -217,27 +216,23 @@ What would you like to know about today?`,
         </div>
       )}
 
-      {/* Messages */}
-      <ScrollArea 
-        ref={scrollAreaRef} 
-        className="flex-1 p-4 pb-2"
-        style={{ 
-          maxHeight: keyboardHeight > 0 ? 'calc(100% - 140px)' : 'calc(100% - 80px)'
-        }}
-      >
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
-          ))}
-        </div>
-      </ScrollArea>
+      {/* Messages - Scrollable Content */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea 
+          ref={scrollAreaRef} 
+          className="h-full p-4 pb-2"
+        >
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
 
-      {/* Input Section */}
+      {/* Input Section - Always Fixed at Bottom */}
       <div 
-        className="p-4 bg-gradient-card border-t border-coach-border sticky bottom-0 z-10"
-        style={{ 
-          transform: keyboardHeight > 0 ? 'translateY(0)' : 'none'
-        }}
+        className="bg-gradient-card border-t border-coach-border p-4 flex-shrink-0"
       >
         <div className="flex items-center space-x-3">
           <Input
