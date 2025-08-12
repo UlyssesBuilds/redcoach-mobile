@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { FoodScanner } from '@/components/FoodScanner';
 import { Coach } from '@/components/Coach';
+import { FeedFilterPanel } from '@/components/FeedFilterPanel';
+import { FeedItem } from '@/components/FeedItem';
+import { fetchFeed, FeedFilterType, FeedItem as FeedItemType } from '@/lib/feedService';
 import { 
   Activity, 
   Target, 
@@ -33,7 +36,31 @@ export const Dashboard = () => {
   const [showFoodScanner, setShowFoodScanner] = useState(false);
   const [showCoach, setShowCoach] = useState(false);
   const [showQuickActions, setShowQuickActions] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<FeedFilterType>('all');
+  const [feedData, setFeedData] = useState<FeedItemType[]>([]);
+  const [isLoadingFeed, setIsLoadingFeed] = useState(false);
   const { user, logout } = useAuth();
+
+  // Load initial feed data
+  useEffect(() => {
+    const loadFeedData = async () => {
+      setIsLoadingFeed(true);
+      try {
+        const data = await fetchFeed(activeFilter);
+        setFeedData(data);
+      } catch (error) {
+        console.error('Failed to load feed data:', error);
+      } finally {
+        setIsLoadingFeed(false);
+      }
+    };
+
+    loadFeedData();
+  }, [activeFilter]);
+
+  const handleFilterChange = async (filter: FeedFilterType) => {
+    setActiveFilter(filter);
+  };
 
   // Mock data
   const dailyGoals = {
@@ -64,6 +91,10 @@ export const Dashboard = () => {
             recentActivities={recentActivities}
             onStartWorkout={() => setShowCoach(true)}
             onLogFood={() => setShowFoodScanner(true)}
+            activeFilter={activeFilter}
+            feedData={feedData}
+            isLoadingFeed={isLoadingFeed}
+            onFilterChange={handleFilterChange}
           />
         );
       case 'stats':
@@ -79,6 +110,10 @@ export const Dashboard = () => {
             recentActivities={recentActivities}
             onStartWorkout={() => setShowCoach(true)}
             onLogFood={() => setShowFoodScanner(true)}
+            activeFilter={activeFilter}
+            feedData={feedData}
+            isLoadingFeed={isLoadingFeed}
+            onFilterChange={handleFilterChange}
           />
         );
     }
@@ -222,7 +257,7 @@ export const Dashboard = () => {
   );
 };
 
-const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood }: any) => (
+const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood, activeFilter, feedData, isLoadingFeed, onFilterChange }: any) => (
   <div className="p-4 space-y-6">
     {/* Daily Goals */}
     <div className="space-y-4">
@@ -351,30 +386,34 @@ const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood }: an
       </div>
     </div>
 
-    {/* Recent Activity */}
+    {/* Community Feed */}
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Recent Activity</h2>
+      <h2 className="text-xl font-semibold">Community Feed</h2>
+      
+      {/* Filter Panel */}
+      <FeedFilterPanel 
+        activeFilter={activeFilter}
+        onFilterChange={onFilterChange}
+        isLoading={isLoadingFeed}
+      />
+      
+      {/* Feed Items */}
       <div className="space-y-3">
-        {recentActivities.map((activity) => (
-          <Card key={activity.id} className="bg-gradient-card border-coach-border">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-coach-red/10 rounded-lg flex items-center justify-center">
-                    <Activity className="w-5 h-5 text-coach-red" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{activity.description || activity.type}</p>
-                    <p className="text-sm text-muted-foreground">{activity.time}</p>
-                  </div>
-                </div>
-                {activity.calories && (
-                  <Badge variant="outline">{activity.calories} cal</Badge>
-                )}
-              </div>
+        {isLoadingFeed ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-coach-red"></div>
+          </div>
+        ) : feedData.length > 0 ? (
+          feedData.map((item) => (
+            <FeedItem key={item.id} item={item} />
+          ))
+        ) : (
+          <Card className="bg-gradient-card border-coach-border">
+            <CardContent className="p-8 text-center">
+              <p className="text-muted-foreground">No activities found for this filter.</p>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
     </div>
   </div>
