@@ -427,20 +427,46 @@ const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood, acti
   );
 };
 
-const StatsTab = () => (
-  <div className="p-4 space-y-6">
-    <h2 className="text-xl font-semibold">Your Statistics</h2>
-    <Card className="bg-gradient-card border-coach-border">
-      <CardHeader>
-        <CardTitle>Weekly Overview</CardTitle>
-        <CardDescription>Your progress this week</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground">Detailed analytics coming soon...</p>
-      </CardContent>
-    </Card>
-  </div>
-);
+const StatsTab = () => {
+  const [showStats, setShowStats] = useState(false);
+  
+  if (showStats) {
+    const { StatsPage } = require('@/components/StatsPage');
+    return <StatsPage onBack={() => setShowStats(false)} />;
+  }
+  
+  return (
+    <div className="p-4 space-y-6">
+      <h2 className="text-xl font-semibold">Your Statistics</h2>
+      <Card className="bg-gradient-card border-coach-border">
+        <CardHeader>
+          <CardTitle>Progress Overview</CardTitle>
+          <CardDescription>Track your fitness journey and achievements</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button 
+            variant="coach" 
+            className="w-full h-12"
+            onClick={() => setShowStats(true)}
+          >
+            <BarChart3 className="w-5 h-5 mr-2" />
+            View Detailed Stats
+          </Button>
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="space-y-1">
+              <p className="text-2xl font-bold text-coach-red">87%</p>
+              <p className="text-sm text-muted-foreground">Weekly Goal</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-2xl font-bold text-coach-red">24</p>
+              <p className="text-sm text-muted-foreground">Active Days</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const ChatTab = () => (
   <div className="p-4 space-y-6">
