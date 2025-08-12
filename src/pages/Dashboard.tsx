@@ -20,7 +20,10 @@ import {
   Home,
   User,
   LogOut,
-  Plus
+  Plus,
+  Heart,
+  Wheat,
+  Droplet
 } from 'lucide-react';
 
 type BottomNavTab = 'home' | 'stats' | 'chat' | 'profile';
@@ -34,8 +37,10 @@ export const Dashboard = () => {
 
   // Mock data
   const dailyGoals = {
-    calories: { current: 1850, target: 2200 },
-    protein: { current: 120, target: 150 },
+    calories: { current: 1405, target: 2200 },
+    protein: { current: 89, target: 165 },
+    carbs: { current: 145, target: 275 },
+    fat: { current: 54, target: 73 },
     steps: { current: 8500, target: 10000 }
   };
 
@@ -221,44 +226,106 @@ const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood }: an
   <div className="p-4 space-y-6">
     {/* Daily Goals */}
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Today's Progress</h2>
-      <div className="grid gap-4">
-        <Card className="bg-gradient-card border-coach-border">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Flame className="w-5 h-5 text-coach-red" />
-                <span className="font-medium">Calories</span>
-              </div>
-              <Badge variant="secondary">
-                {dailyGoals.calories.current}/{dailyGoals.calories.target}
-              </Badge>
-            </div>
-            <Progress 
-              value={(dailyGoals.calories.current / dailyGoals.calories.target) * 100} 
-              className="h-2" 
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-card border-coach-border">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Apple className="w-5 h-5 text-green-500" />
-                <span className="font-medium">Protein</span>
-              </div>
-              <Badge variant="secondary">
-                {dailyGoals.protein.current}g/{dailyGoals.protein.target}g
-              </Badge>
-            </div>
-            <Progress 
-              value={(dailyGoals.protein.current / dailyGoals.protein.target) * 100} 
-              className="h-2" 
-            />
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Calories</h2>
+        <Button variant="ghost" size="sm" className="text-coach-red font-medium">
+          Edit
+        </Button>
       </div>
+      
+      {/* Circular Calorie Tracker */}
+      <Card className="bg-gradient-card border-coach-border">
+        <CardContent className="p-8">
+          <div className="flex flex-col items-center space-y-6">
+            {/* Circular Progress */}
+            <div className="relative w-40 h-40">
+              <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 160 160">
+                {/* Background circle */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  fill="none"
+                  className="text-muted/20"
+                />
+                {/* Progress circle */}
+                <circle
+                  cx="80"
+                  cy="80"
+                  r="70"
+                  stroke="hsl(var(--coach-red))"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 70}`}
+                  strokeDashoffset={`${2 * Math.PI * 70 * (1 - (dailyGoals.calories.current / dailyGoals.calories.target))}`}
+                  className="transition-all duration-300"
+                />
+              </svg>
+              {/* Center content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-4xl font-bold text-foreground">
+                  {dailyGoals.calories.target - dailyGoals.calories.current}
+                </span>
+                <span className="text-sm text-muted-foreground">Remaining</span>
+              </div>
+            </div>
+            
+            {/* Macro Nutrients */}
+            <div className="grid grid-cols-3 gap-6 w-full">
+              {/* Protein */}
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-coach-red mr-1" />
+                  <span className="text-sm text-muted-foreground">Protein</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xl font-semibold text-foreground">
+                    {dailyGoals.protein.current}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    /{dailyGoals.protein.target}g
+                  </p>
+                </div>
+              </div>
+              
+              {/* Carbs */}
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center">
+                  <Wheat className="w-4 h-4 text-green-500 mr-1" />
+                  <span className="text-sm text-muted-foreground">Carbs</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xl font-semibold text-foreground">
+                    {dailyGoals.carbs.current}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    /{dailyGoals.carbs.target}g
+                  </p>
+                </div>
+              </div>
+              
+              {/* Fat */}
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center">
+                  <Droplet className="w-4 h-4 text-yellow-500 mr-1" />
+                  <span className="text-sm text-muted-foreground">Fat</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xl font-semibold text-foreground">
+                    {dailyGoals.fat.current}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    /{dailyGoals.fat.target}g
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
     {/* Quick Actions */}
