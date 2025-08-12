@@ -257,7 +257,9 @@ export const Dashboard = () => {
   );
 };
 
-const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood, activeFilter, feedData, isLoadingFeed, onFilterChange }: any) => (
+const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood, activeFilter, feedData, isLoadingFeed, onFilterChange }: any) => {
+  console.log('HomeTab onFilterChange:', onFilterChange);
+  return (
   <div className="p-4 space-y-6">
     {/* Daily Goals */}
     <div className="space-y-4">
@@ -417,7 +419,8 @@ const HomeTab = ({ dailyGoals, recentActivities, onStartWorkout, onLogFood, acti
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const StatsTab = () => (
   <div className="p-4 space-y-6">
