@@ -315,39 +315,42 @@ export const StatsPage = ({ onBack }: StatsPageProps) => {
             </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                protein: {
-                  label: "Protein",
-                  color: "hsl(var(--coach-red))",
-                },
-                carbs: {
-                  label: "Carbs", 
-                  color: "hsl(var(--muted))",
-                },
-                fat: {
-                  label: "Fat",
-                  color: "hsl(142, 76%, 36%)",
-                },
-              }}
-              className="h-[200px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={statsData.macroTrends}>
-                  <XAxis 
-                    dataKey="day"
-                    axisLine={false}
-                    tickLine={false}
-                    className="text-muted-foreground"
-                  />
-                  <YAxis hide />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="protein" stackId="a" fill="hsl(var(--coach-red))" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="carbs" stackId="a" fill="hsl(var(--muted))" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="fat" stackId="a" fill="hsl(142, 76%, 36%)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            <div className="h-[250px] w-full">
+              <ChartContainer
+                config={{
+                  protein: {
+                    label: "Protein",
+                    color: "hsl(var(--coach-red))",
+                  },
+                  carbs: {
+                    label: "Carbs", 
+                    color: "hsl(var(--muted))",
+                  },
+                  fat: {
+                    label: "Fat",
+                    color: "hsl(142, 76%, 36%)",
+                  },
+                }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={statsData.macroTrends} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+                    <XAxis 
+                      dataKey="day"
+                      axisLine={false}
+                      tickLine={false}
+                      className="text-muted-foreground"
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis hide />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="protein" stackId="a" fill="hsl(var(--coach-red))" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="carbs" stackId="a" fill="hsl(var(--muted))" radius={[0, 0, 0, 0]} />
+                    <Bar dataKey="fat" stackId="a" fill="hsl(142, 76%, 36%)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
           </CardContent>
         </Card>
       </div>
