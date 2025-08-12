@@ -178,13 +178,13 @@ What would you like to know about today?`,
   return (
     <div 
       ref={containerRef}
-      className="flex flex-col h-screen bg-gradient-subtle overflow-hidden"
+      className="flex flex-col h-screen bg-gradient-subtle"
       style={{ 
         height: keyboardHeight > 0 ? `calc(100vh - ${keyboardHeight}px)` : '100vh'
       }}
     >
       {/* Header */}
-      <div className="bg-gradient-card border-b border-coach-border p-4">
+      <div className="bg-gradient-card border-b border-coach-border p-4 flex-shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
@@ -198,7 +198,7 @@ What would you like to know about today?`,
 
       {/* Quick Questions */}
       {messages.length <= 1 && (
-        <div className="p-4 border-b border-coach-border bg-gradient-card">
+        <div className="p-4 border-b border-coach-border bg-gradient-card flex-shrink-0">
           <h3 className="text-sm font-medium text-foreground mb-3">Quick Questions</h3>
           <div className="grid grid-cols-1 gap-2">
             {quickQuestions.map((question) => (
@@ -216,18 +216,14 @@ What would you like to know about today?`,
         </div>
       )}
 
-      {/* Messages - Scrollable Content */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea 
-          ref={scrollAreaRef} 
-          className="h-full p-4 pb-2"
-        >
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
-            ))}
-          </div>
-        </ScrollArea>
+      {/* Chat History Container - Primary Growing Element */}
+      <div 
+        ref={scrollAreaRef}
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+      >
+        {messages.map((message) => (
+          <ChatMessage key={message.id} message={message} />
+        ))}
       </div>
 
       {/* Input Section - Always Fixed at Bottom */}
