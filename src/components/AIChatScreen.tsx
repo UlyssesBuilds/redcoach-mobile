@@ -88,6 +88,8 @@ export const AIChatScreen = () => {
       if (keyboardHideListener) keyboardHideListener.remove();
     };
   }, []);
+
+  // Welcome message
   useEffect(() => {
     const welcomeMessage = chatService.formatMessage(
       `👋 Hey there! I'm your RedCoach AI assistant, ready to help you crush your fitness goals!
@@ -216,7 +218,9 @@ What would you like to know about today?`,
       )}
 
       {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 pb-2"
+      <ScrollArea 
+        ref={scrollAreaRef} 
+        className="flex-1 p-4 pb-2"
         style={{ 
           maxHeight: keyboardHeight > 0 ? 'calc(100% - 140px)' : 'calc(100% - 80px)'
         }}
@@ -228,8 +232,9 @@ What would you like to know about today?`,
         </div>
       </ScrollArea>
 
-      {/* Input */}
-      <div className="p-4 bg-gradient-card border-t border-coach-border sticky bottom-0 z-10"
+      {/* Input Section */}
+      <div 
+        className="p-4 bg-gradient-card border-t border-coach-border sticky bottom-0 z-10"
         style={{ 
           transform: keyboardHeight > 0 ? 'translateY(0)' : 'none'
         }}
