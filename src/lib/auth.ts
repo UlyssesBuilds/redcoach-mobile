@@ -18,77 +18,140 @@ export interface AuthState {
   isLoading: boolean;
 }
 
+interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: User;
+}
+
 const TOKEN_KEY = 'redcoach_token';
 const USER_KEY = 'redcoach_user';
+const API_BASE_URL = 'https://caloriecounter-w8ul.onrender.com';
 
-// Simulate JWT token generation
-const generateToken = (userId: string): string => {
-  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({ userId, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
-  const signature = btoa(`${header}.${payload}.signature`);
-  return `${header}.${payload}.${signature}`;
+// Helper function to make authenticated requests
+const makeAuthenticatedRequest = async (url: string, options: RequestInit = {}) => {
+  const tokenResult = await Preferences.get({ key: TOKEN_KEY });
+  const token = tokenResult.value;
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` }),
+    ...options.headers,
+  };
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  });
+
+  // Handle 401 unauthorized - clear stored data and redirect to login
+  if (response.status === 401) {
+    await Preferences.remove({ key: TOKEN_KEY });
+    await Preferences.remove({ key: USER_KEY });
+    throw new Error('Session expired');
+  }
+
+  return response;
 };
 
 export const authService = {
   async login(email: string, password: string): Promise<{ user: User; token: string }> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if user exists in storage
-    const existingUser = await this.getUserByEmail(email);
-    
-    if (!existingUser) {
-      throw new Error('User not found');
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email, // FastAPI expects username field
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Login failed');
+      }
+
+      const authResponse: AuthResponse = await response.json();
+      
+      // Store token and user data
+      await Preferences.set({ key: TOKEN_KEY, value: authResponse.access_token });
+      await Preferences.set({ key: USER_KEY, value: JSON.stringify(authResponse.user) });
+
+      return { 
+        user: authResponse.user, 
+        token: authResponse.access_token 
+      };
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-
-    const token = generateToken(existingUser.id);
-    await Preferences.set({ key: TOKEN_KEY, value: token });
-    await Preferences.set({ key: USER_KEY, value: JSON.stringify(existingUser) });
-
-    return { user: existingUser, token };
   },
 
   async signup(email: string, password: string, name: string): Promise<{ user: User; token: string }> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Check if user already exists
-    const existingUser = await this.getUserByEmail(email);
-    if (existingUser) {
-      throw new Error('User already exists');
+    try {
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: email, // FastAPI expects username field
+          email: email,
+          password: password,
+          name: name,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Registration failed');
+      }
+
+      const authResponse: AuthResponse = await response.json();
+      
+      // Store token and user data
+      await Preferences.set({ key: TOKEN_KEY, value: authResponse.access_token });
+      await Preferences.set({ key: USER_KEY, value: JSON.stringify(authResponse.user) });
+
+      return { 
+        user: authResponse.user, 
+        token: authResponse.access_token 
+      };
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
     }
-
-    const newUser: User = {
-      id: `user_${Date.now()}`,
-      email,
-      name,
-      onboardingCompleted: false,
-      createdAt: new Date().toISOString()
-    };
-
-    const token = generateToken(newUser.id);
-    
-    // Store user data
-    await this.saveUser(newUser);
-    await Preferences.set({ key: TOKEN_KEY, value: token });
-    await Preferences.set({ key: USER_KEY, value: JSON.stringify(newUser) });
-
-    return { user: newUser, token };
   },
 
   async getCurrentUser(): Promise<{ user: User; token: string } | null> {
     try {
       const tokenResult = await Preferences.get({ key: TOKEN_KEY });
-      const userResult = await Preferences.get({ key: USER_KEY });
-
-      if (!tokenResult.value || !userResult.value) {
+      
+      if (!tokenResult.value) {
         return null;
       }
 
-      const user = JSON.parse(userResult.value) as User;
+      // Verify token is still valid by fetching user data from backend
+      const response = await makeAuthenticatedRequest(`${API_BASE_URL}/user/me`);
+      
+      if (!response.ok) {
+        // Token is invalid, clear stored data
+        await this.logout();
+        return null;
+      }
+
+      const user: User = await response.json();
+      
+      // Update stored user data with fresh data from backend
+      await Preferences.set({ key: USER_KEY, value: JSON.stringify(user) });
+
       return { user, token: tokenResult.value };
     } catch (error) {
       console.error('Error getting current user:', error);
+      // Clear potentially corrupted data
+      await this.logout();
       return null;
     }
   },
@@ -99,38 +162,28 @@ export const authService = {
   },
 
   async updateUser(user: User): Promise<User> {
-    await this.saveUser(user);
-    await Preferences.set({ key: USER_KEY, value: JSON.stringify(user) });
-    return user;
-  },
-
-  async getUserByEmail(email: string): Promise<User | null> {
     try {
-      const usersResult = await Preferences.get({ key: 'redcoach_users' });
-      if (!usersResult.value) return null;
+      const response = await makeAuthenticatedRequest(`${API_BASE_URL}/user/me`, {
+        method: 'PUT',
+        body: JSON.stringify(user),
+      });
 
-      const users = JSON.parse(usersResult.value) as User[];
-      return users.find(u => u.email === email) || null;
-    } catch {
-      return null;
-    }
-  },
-
-  async saveUser(user: User): Promise<void> {
-    try {
-      const usersResult = await Preferences.get({ key: 'redcoach_users' });
-      const users = usersResult.value ? JSON.parse(usersResult.value) as User[] : [];
-      
-      const existingIndex = users.findIndex(u => u.id === user.id);
-      if (existingIndex >= 0) {
-        users[existingIndex] = user;
-      } else {
-        users.push(user);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Update failed');
       }
+
+      const updatedUser: User = await response.json();
       
-      await Preferences.set({ key: 'redcoach_users', value: JSON.stringify(users) });
+      // Update stored user data
+      await Preferences.set({ key: USER_KEY, value: JSON.stringify(updatedUser) });
+      
+      return updatedUser;
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error('Update user error:', error);
+      throw error;
     }
-  }
+  },
+
+  // Removed mock methods - no longer needed with real backend
 };
